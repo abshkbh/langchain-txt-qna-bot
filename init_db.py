@@ -1,9 +1,13 @@
+import os
+import sys
+
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
 
 
-def index_file_to_vector_db(file_path: str):
+def index_file_to_vector_db(file_path: str, db_path: str):
     """
     This script is used to initialize the vector DB. It takes a text file as input and splits it
     into chunks of 1000 characters.
@@ -16,11 +20,17 @@ def index_file_to_vector_db(file_path: str):
 
     embeddings = OpenAIEmbeddings()
     docsearch = Chroma.from_texts(texts, embeddings, metadatas=[
-        {"source": f"Text chunk {i} of {len(texts)}"} for i in range(len(texts))],
-        persist_directory="db")
+        {"source": f"Text chunk {i} of {len(texts)} of {file_path}"} for i in range(len(texts))],
+        persist_directory=db_path)
     docsearch.persist()
+
+
+def index_directory_to_vector_db(directory: str):
+    for file in os.listdir(directory):
+        if file.endswith(".txt"):
+            index_file_to_vector_db(os.path.join(directory, file), "db")
 
 
 if __name__ == '__main__':
     print('Initialize the vector DB!')
-    index_file_to_vector_db('state_of_the_union.txt')
+    index_directory_to_vector_db(sys.argv[1])
