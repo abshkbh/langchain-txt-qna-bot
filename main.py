@@ -2,9 +2,8 @@ import os
 import sys
 
 from typing import Tuple
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
-from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQAWithSourcesChain
 
@@ -12,7 +11,7 @@ from langchain.chains import RetrievalQAWithSourcesChain
 class QnABot():
     def __init__(self):
         self.__vector_db = Chroma(
-            persist_directory="db", embedding_function=OpenAIEmbeddings())
+            persist_directory="db", embedding_function=HuggingFaceEmbeddings())
 
     def get_answer(self, query: str) -> Tuple[str, str]:
         chain = RetrievalQAWithSourcesChain.from_chain_type(ChatOpenAI(

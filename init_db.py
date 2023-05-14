@@ -1,7 +1,6 @@
 import os
 import sys
 
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
@@ -18,7 +17,7 @@ def index_file_to_vector_db(file_path: str, db_path: str):
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_text(input_file)
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = HuggingFaceEmbeddings()
     docsearch = Chroma.from_texts(texts, embeddings, metadatas=[
         {"source": f"Text chunk {i} of {len(texts)} of {file_path}"} for i in range(len(texts))],
         persist_directory=db_path)
@@ -28,6 +27,7 @@ def index_file_to_vector_db(file_path: str, db_path: str):
 def index_directory_to_vector_db(directory: str):
     for file in os.listdir(directory):
         if file.endswith(".txt"):
+            print(f'Indexing file {file}')
             index_file_to_vector_db(os.path.join(directory, file), "db")
 
 
