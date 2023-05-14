@@ -5,6 +5,7 @@ from typing import Tuple
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQAWithSourcesChain
 
 
@@ -14,7 +15,7 @@ class QnABot():
             persist_directory="db", embedding_function=OpenAIEmbeddings())
 
     def get_answer(self, query: str) -> Tuple[str, str]:
-        chain = RetrievalQAWithSourcesChain.from_chain_type(OpenAI(
+        chain = RetrievalQAWithSourcesChain.from_chain_type(ChatOpenAI(
             model_name="gpt-3.5-turbo", temperature=0.8, max_tokens=100,
             openai_api_key=os.environ['OPENAI_API_KEY']),
             chain_type="stuff",
