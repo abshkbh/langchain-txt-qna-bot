@@ -29,4 +29,4 @@ if __name__ == '__main__':
     print(f'QnA Bot Question: {question}')
     bot = QnABot()
     answer, source = bot.get_answer(question)
-    print(f'Question: {question} Answer: {answer} Source: {source}')
+    print(f'Question: {question}\nAnswer: {answer}\nSource: {source}')

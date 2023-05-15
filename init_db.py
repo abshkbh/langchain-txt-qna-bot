@@ -1,6 +1,7 @@
 import os
 import sys
 
+from langchain.document_loaders import DirectoryLoader
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
@@ -24,13 +25,22 @@ def index_file_to_vector_db(file_path: str, db_path: str):
     docsearch.persist()
 
 
-def index_directory_to_vector_db(directory: str):
-    for file in os.listdir(directory):
-        if file.endswith(".txt"):
-            print(f'Indexing file {file}')
-            index_file_to_vector_db(os.path.join(directory, file), "db")
+def index_directory(input_path: str, db_path: str):
+    txt_loader = DirectoryLoader(input_path, glob="**/*.txt")
+    pdf_loader = DirectoryLoader(input_path, glob="**/*.pdf")
+    loaders = [txt_loader, pdf_loader]
+    documents = []
+    for loader in loaders:
+        documents.extend(loader.load())
+    print(f"Total number of documents: {len(documents)}")
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    documents = text_splitter.split_documents(documents)
+    embeddings = HuggingFaceEmbeddings()
+    vectorstore = Chroma.from_documents(
+        documents, embeddings, persist_directory=db_path)
+    vectorstore.persist()
 
 
 if __name__ == '__main__':
     print('Initialize the vector DB!')
-    index_directory_to_vector_db(sys.argv[1])
+    index_directory(sys.argv[1], sys.argv[2])
